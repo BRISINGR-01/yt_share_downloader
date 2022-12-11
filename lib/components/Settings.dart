@@ -164,6 +164,7 @@ class _SettingsState extends State<Settings> {
                                     fontStyle: FontStyle.italic),
                               ),
                       ),
+                      const SizedBox(width: 24),
                       IconButton(
                         icon: const Icon(Icons.refresh),
                         onPressed: () {

@@ -128,28 +128,30 @@ class _HomeState extends State<Home> {
                 icon: const Icon(Icons.settings))
           ],
         ),
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SearchBar(
-              prepareDownload: _prepareDownload,
-              clearUrl: _clearUrl,
-              url: _url,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(children: [
-                for (VideoInstance video in _queue)
-                  VideoDisplay(
-                    video: video,
-                    userSettings: _userSettings!,
-                    removeVideoFromQueue: () =>
-                        _removeVideoFromQueue(video.url),
-                  )
-              ]),
-            )
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SearchBar(
+                prepareDownload: _prepareDownload,
+                clearUrl: _clearUrl,
+                url: _url,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(children: [
+                  for (VideoInstance video in _queue)
+                    VideoDisplay(
+                      video: video,
+                      userSettings: _userSettings!,
+                      removeVideoFromQueue: () =>
+                          _removeVideoFromQueue(video.url),
+                    )
+                ]),
+              )
+            ],
+          ),
         ),
       ));
     }

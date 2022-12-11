@@ -83,6 +83,7 @@ class VideoDisplayState extends State<VideoDisplay> {
               icon: const Icon(
                 Icons.cancel,
               ),
+              color: Colors.blueGrey.shade300,
               onPressed: () => widget.removeVideoFromQueue()),
         ],
       );
@@ -110,7 +111,7 @@ class VideoDisplayState extends State<VideoDisplay> {
                               .delete(fileName,
                                   widget.userSettings.downloadsDirectory)
                               .then((deleteError) {
-                            if (error == null) {
+                            if (deleteError == null) {
                               widget.removeVideoFromQueue();
                             } else {
                               setState(() {

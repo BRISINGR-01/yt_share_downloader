@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "YT downloader" "\0"
+            VALUE "FileDescription", "YT Downloader" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "YT downloader" "\0"
+            VALUE "InternalName", "YT Downloader" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "YT downloader.exe" "\0"
-            VALUE "ProductName", "YT downloader" "\0"
+            VALUE "OriginalFilename", "YT Downloader.exe" "\0"
+            VALUE "ProductName", "YT Downloader" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

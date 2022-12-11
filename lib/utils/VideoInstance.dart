@@ -31,15 +31,12 @@ class VideoInstance {
 
   Future<Map<String, dynamic>> loadData(UserSettings userSettings) async {
     Map<String, dynamic> result = {"error": null, "fileName": ""};
-    ConnectivityResult connection = await Connectivity().checkConnectivity();
 
-    if (connection == ConnectivityResult.none) {
-      result["error"] = const AppError("You are offline");
-      return result;
-    } else if (!userSettings.canDownloadUsingMobileData &&
-        connection == ConnectivityResult.mobile) {
-      result["error"] = const AppError(
-          "Downloading with mobile data is disabled in the settings");
+    AppError? connectionError =
+        await canAccessInternet(userSettings.canDownloadUsingMobileData);
+
+    if (connectionError != null) {
+      result["error"] = connectionError;
       return result;
     }
 
@@ -52,9 +49,17 @@ class VideoInstance {
       result["fileName"] =
           getFileName(video.title, video.author, userSettings.audioOnly);
       state = VideoState.waitingForApproval;
+    } on ArgumentError catch (e) {
+      if (e.message == "Invalid YouTube video ID or URL") {
+        result["error"] = const AppError("Invalid url");
+      } else {
+        result["error"] = const AppError(
+            "An error occured while fetching data for the video");
+      }
     } catch (e) {
+      print(e);
       result["error"] =
-          const AppError("An error occured when fetching data for the video");
+          const AppError("An error occured while fetching data for the video");
     }
 
     return result;
@@ -72,15 +77,10 @@ class VideoInstance {
     state = VideoState.downloading;
     updateProgress(0);
 
-    ConnectivityResult connection = await Connectivity().checkConnectivity();
+    AppError? connectionError =
+        await canAccessInternet(userSettings.canDownloadUsingMobileData);
 
-    if (connection == ConnectivityResult.none) {
-      return const AppError("You are offline");
-    } else if (!userSettings.canDownloadUsingMobileData &&
-        connection == ConnectivityResult.mobile) {
-      return const AppError(
-          "Downloading with mobile data is disabled in the settings");
-    }
+    if (connectionError != null) return connectionError;
 
     try {
       var streamInfo = userSettings.audioOnly
@@ -107,8 +107,6 @@ class VideoInstance {
         updateProgress(downloadedMbs / totalMbs);
         file.writeAsBytesSync(bytes, mode: FileMode.append);
       }
-      // await stream.pipe(fileStream);
-      state = VideoState.done;
       await fileStream.flush();
       await fileStream.close();
     } catch (e) {
@@ -116,6 +114,7 @@ class VideoInstance {
           "An error occured when fetching data for the video");
     }
 
+    state = VideoState.done;
     return null;
   }
 

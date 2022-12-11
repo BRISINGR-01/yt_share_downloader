@@ -48,7 +48,7 @@ Future<Map<String, dynamic>> getAllSettings() async {
 String getFileName(String title, String author, bool isAudio) {
   String formatString(str) {
     return str
-        .replaceAll(RegExp(r'[^\w,\s-]'), "")
+        .replaceAll(RegExp(r'[\\\/\?\:\"\<\>\|\*\.]'), "")
         .replaceAll(RegExp(r'\s+'), " ");
   }
 
@@ -58,28 +58,18 @@ String getFileName(String title, String author, bool isAudio) {
   return "$title - $author.mp${isAudio ? 3 : 4}";
 }
 
-Future<Map<String, dynamic>> getLimitedSettings() async {
-  final prefs = await SharedPreferences.getInstance();
+Future<AppError?> canAccessInternet(bool canDownloadUsingMobileData) async {
+  ConnectivityResult connection = await Connectivity().checkConnectivity();
 
-  bool isOnMobileData =
-      await Connectivity().checkConnectivity() == ConnectivityResult.mobile;
-  if (isOnMobileData) {
-    bool isAllowed = prefs.getBool("canDownloadUsingMobileData") ?? false;
-
-    if (!isAllowed) return {"isAllowed": false};
+  if (connection == ConnectivityResult.none) {
+    return const AppError("You are offline");
+  } else if (!canDownloadUsingMobileData &&
+      connection == ConnectivityResult.mobile) {
+    return const AppError(
+        "Downloading with mobile data is disabled in the settings");
   }
 
-  String? customDownloadDirectoryPath =
-      prefs.getString("customDownloadDirectoryPath");
-  String path = customDownloadDirectoryPath ??
-      prefs.getString("chosenDirectoryForDownload") ??
-      "Downloads";
-
-  return {
-    "isAllowed": true,
-    "audioOnly": prefs.getBool("audioOnly") ?? true,
-    "directory": path,
-  };
+  return null;
 }
 
 bool isUrlValid(String? url) {
