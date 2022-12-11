@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:yt_share_downloader/utils/utils.dart';
 
 class UserSettings {

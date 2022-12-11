@@ -1,7 +1,6 @@
-import 'dart:io';
+// ignore_for_file: file_names
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:yt_share_downloader/utils/UserSettings.dart';
 import 'package:path/path.dart' as p;
@@ -57,7 +56,6 @@ class VideoInstance {
             "An error occured while fetching data for the video");
       }
     } catch (e) {
-      print(e);
       result["error"] =
           const AppError("An error occured while fetching data for the video");
     }
@@ -109,9 +107,6 @@ class VideoInstance {
       await fileStream.flush();
       await fileStream.close();
     } catch (e) {
-      print(e);
-      print("________________");
-      print("_________________");
       return const AppError(
           "An error occured when fetching data for the video");
     }

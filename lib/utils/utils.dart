@@ -1,12 +1,6 @@
-import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:external_path/external_path.dart';
-import 'package:path/path.dart' as p;
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:yt_share_downloader/utils/UserSettings.dart';
 
 String getDirectory(String option) {
   return {

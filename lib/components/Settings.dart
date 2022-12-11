@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_share_downloader/components/Loader.dart';
