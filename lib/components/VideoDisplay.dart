@@ -203,7 +203,7 @@ class VideoDisplayWrapper extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(left: isMobile ? 20 : 80),
+            padding: EdgeInsets.only(left: isMobile ? 0 : 80),
             child: SelectableText(
               title,
               style: const TextStyle(fontSize: 20),

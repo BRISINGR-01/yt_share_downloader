@@ -97,8 +97,7 @@ class VideoInstance {
         return const AppError(
             "Couldn't find the folder specified in the settings");
       }
-
-      File file = File(p.join(userSettings.downloadsDirectory, fileName));
+      File file = File(p.join(downloadsDirectory.path, fileName));
       IOSink fileStream = file.openWrite();
 
       int downloadedMbs = 0;
@@ -110,6 +109,9 @@ class VideoInstance {
       await fileStream.flush();
       await fileStream.close();
     } catch (e) {
+      print(e);
+      print("________________");
+      print("_________________");
       return const AppError(
           "An error occured when fetching data for the video");
     }
@@ -119,7 +121,7 @@ class VideoInstance {
   }
 
   Future<AppError?> delete(String fileName, String downloadsDirectory) async {
-    File file = File(fileName);
+    File file = File(p.join(downloadsDirectory, fileName));
 
     if (!file.existsSync()) {
       return AppError("Cannot find $fileName in $downloadsDirectory");
