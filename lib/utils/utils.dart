@@ -1,6 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:external_path/external_path.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+const List<String> valuesToRemove = ["VEVO"];
 
 String getDirectory(String option) {
   return {
@@ -27,6 +30,7 @@ void setSetting({required String key, required dynamic value}) async {
 
 Future<Map<String, dynamic>> getAllSettings() async {
   final prefs = await SharedPreferences.getInstance();
+  String? fileModeStr = prefs.getString("fileNameMode");
 
   return {
     "audioOnly": prefs.getBool("audioOnly") ?? true,
@@ -36,31 +40,56 @@ Future<Map<String, dynamic>> getAllSettings() async {
         prefs.getString("customDownloadDirectoryPath"),
     "canDownloadUsingMobileData":
         prefs.getBool("canDownloadUsingMobileData") ?? false,
+    "fileNameMode": fileModeStr == "artistSong"
+        ? FileNameMode.artistSong
+        : fileModeStr == "title"
+            ? FileNameMode.title
+            : FileNameMode.songArtist,
   };
 }
 
-String getFileName(String title, String author, bool isAudio) {
-  String formatString(str) {
+String getFileName({
+  required FileNameMode fileNameMode,
+  String title = "",
+  String song = "",
+  String artist = "",
+}) {
+  String formatString(String str) {
     return str
+        .trim()
         .replaceAll(RegExp(r'[\\\/\?\:\"\<\>\|\*\.]'), "")
         .replaceAll(RegExp(r'\s+'), " ");
   }
 
   title = formatString(title);
-  author = formatString(author);
+  artist = formatString(artist);
+  song = formatString(song);
 
-  return "$title - $author.mp${isAudio ? 3 : 4}";
+  return fileNameMode == FileNameMode.songArtist
+      ? "$song - $artist"
+      : fileNameMode == FileNameMode.artistSong
+          ? "$artist - $song"
+          : title;
+}
+
+String getSongName(String title, String author) {
+  return title
+      .replaceFirst(author, "")
+      .replaceAll(RegExp(r'\(.+\)'), "")
+      .replaceAll(RegExp(r'\[.+\]'), "")
+      .trim()
+      .replaceAll(RegExp(r'^-|-$/'), "")
+      .trim();
 }
 
 Future<AppError?> canAccessInternet(bool canDownloadUsingMobileData) async {
   ConnectivityResult connection = await Connectivity().checkConnectivity();
 
   if (connection == ConnectivityResult.none) {
-    return const AppError("You are offline");
+    return AppError("You are offline");
   } else if (!canDownloadUsingMobileData &&
       connection == ConnectivityResult.mobile) {
-    return const AppError(
-        "Downloading with mobile data is disabled in the settings");
+    return AppError("Downloading with mobile data is disabled in the settings");
   }
 
   return null;
@@ -77,9 +106,34 @@ Future<bool> isOffline() async {
   return await Connectivity().checkConnectivity() == ConnectivityResult.none;
 }
 
-class AppError {
-  final String text;
-  const AppError(this.text);
+String devideCamelCase(String artist) {
+  for (var i = 0; i < artist.length - 1; i++) {
+    if (artist[i] != " " &&
+        artist[i] == artist[i].toLowerCase() &&
+        artist[i + 1] != artist[i + 1].toLowerCase()) {
+      artist =
+          "${artist.substring(0, i + 1)} ${artist.substring(i + 1, artist.length)}";
+    }
+  }
+  return artist;
 }
 
-enum VideoState { loadingData, waitingForApproval, downloading, done, deleting }
+class AppError {
+  final String text;
+  AppError(this.text);
+
+  Widget get widget => Flexible(
+      child:
+          Text(text, style: const TextStyle(color: Colors.red, fontSize: 20)));
+}
+
+enum VideoState {
+  none,
+  loadingData,
+  waitingForApproval,
+  downloading,
+  done,
+  deleting
+}
+
+enum FileNameMode { artistSong, songArtist, title }

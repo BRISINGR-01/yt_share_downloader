@@ -3,15 +3,16 @@ import 'dart:async';
 
 import 'dart:io';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:yt_share_downloader/components/Loader.dart';
 import 'package:yt_share_downloader/components/SearchBar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:yt_share_downloader/components/Settings.dart';
-import 'package:yt_share_downloader/components/VideoDisplay.dart';
+import 'package:yt_share_downloader/components/YTWindow.dart';
+import 'package:yt_share_downloader/components/shared/Loader.dart';
+import 'package:yt_share_downloader/components/shared/VideoDownloader.dart';
 import 'package:yt_share_downloader/utils/UserSettings.dart';
-import 'package:yt_share_downloader/utils/VideoInstance.dart';
+import 'package:yt_share_downloader/utils/VideoObject.dart';
 import 'package:yt_share_downloader/utils/utils.dart';
 
 class Home extends StatefulWidget {
@@ -25,10 +26,9 @@ class _HomeState extends State<Home> {
   final bool _isMobile = Platform.isAndroid || Platform.isIOS;
   late StreamSubscription _intentDataStreamSubscription;
 
-  final YoutubeExplode _yt = YoutubeExplode();
   UserSettings? _userSettings;
   String _url = "";
-  final List<VideoInstance> _queue = [];
+  VideoObject? _video;
 
   void _refreshSettings(UserSettings settings) {
     setState(() {
@@ -39,31 +39,15 @@ class _HomeState extends State<Home> {
   void _prepareDownload(String url) async {
     if (url.isEmpty) return;
 
-    int videoIndex = _queue.indexWhere((video) => video.url == url);
-    if (videoIndex != -1) {
-      if (_queue[videoIndex].state == VideoState.done) {
-        _queue.removeAt(videoIndex);
-      } else {
-        return;
-      }
-    }
-
-    VideoInstance newVideo = VideoInstance(url, _yt, _userSettings);
-
-    setState(() {
-      _queue.add(newVideo);
-    });
-  }
-
-  void _removeVideoFromQueue(String url) {
-    setState(() {
-      _queue.removeWhere((video) => video.url == url);
-    });
-  }
-
-  void _clearUrl() {
     setState(() {
       _url = "";
+      _video = VideoObject(url);
+    });
+  }
+
+  void _finishVideoDownload() {
+    setState(() {
+      _video = null;
     });
   }
 
@@ -72,10 +56,10 @@ class _HomeState extends State<Home> {
     super.initState();
     UserSettings.init().then(_refreshSettings);
 
-    void setUrl(String? url) {
+    void initDownload(String? url) {
       if (url != null) {
         setState(() {
-          _url = url;
+          _video = VideoObject(url);
         });
       }
     }
@@ -83,10 +67,10 @@ class _HomeState extends State<Home> {
     if (_isMobile) {
       // For sharing or opening urls/text coming from outside the app while the app is in the memory
       _intentDataStreamSubscription =
-          ReceiveSharingIntent.getTextStream().listen(setUrl);
+          ReceiveSharingIntent.getTextStream().listen(initDownload);
 
       // For sharing or opening urls/text coming from outside the app while the app is closed
-      ReceiveSharingIntent.getInitialText().then(setUrl);
+      ReceiveSharingIntent.getInitialText().then(initDownload);
     }
   }
 
@@ -108,6 +92,22 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           title: const Text("YT downloader"),
           actions: [
+            if (Platform.isWindows)
+              IconButton(
+                  onPressed: () {
+                    if (_userSettings != null) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => YTWindow(
+                              userSettings: _userSettings!,
+                            ),
+                          ));
+                    }
+                  },
+                  icon: const Image(
+                      image:
+                          AssetImage('lib/assets/youtube_activity_icon.png'))),
             IconButton(
                 onPressed: () => Navigator.push(
                     context,
@@ -116,43 +116,24 @@ class _HomeState extends State<Home> {
                           refreshSettings: _refreshSettings,
                           userSettings: _userSettings!),
                     )).then((value) => setState(() {
-                      _userSettings = UserSettings(
-                          chosenDirectoryForDownload:
-                              value["chosenDirectoryForDownload"],
-                          customDownloadDirectoryPath:
-                              value["customDownloadDirectoryPath"],
-                          audioOnly: value["audioOnly"],
-                          canDownloadUsingMobileData:
-                              value["canDownloadUsingMobileData"]);
+                      _userSettings = UserSettings.fromMap(value);
                     })),
                 icon: const Icon(Icons.settings))
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SearchBar(
+        body: _video != null
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: VideoDownloader(
+                  video: _video!,
+                  userSettings: _userSettings!,
+                  finish: () => _finishVideoDownload(),
+                ),
+              )
+            : SearchBar(
                 prepareDownload: _prepareDownload,
-                clearUrl: _clearUrl,
                 url: _url,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(children: [
-                  for (VideoInstance video in _queue)
-                    VideoDisplay(
-                      video: video,
-                      userSettings: _userSettings!,
-                      removeVideoFromQueue: () =>
-                          _removeVideoFromQueue(video.url),
-                    )
-                ]),
-              )
-            ],
-          ),
-        ),
       ));
     }
   }

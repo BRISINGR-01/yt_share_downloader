@@ -2,7 +2,7 @@
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:yt_share_downloader/components/Loader.dart';
+import 'package:yt_share_downloader/components/shared/Loader.dart';
 import 'package:yt_share_downloader/utils/UserSettings.dart';
 import 'package:yt_share_downloader/utils/utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -21,6 +21,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   late String chosenDirectoryForDownload;
   late String? customDownloadDirectoryPath;
+  late FileNameMode fileNameMode;
   late bool audioOnly;
   ConnectivityResult? connectivityType;
   late bool canDownloadUsingMobileData;
@@ -41,6 +42,7 @@ class _SettingsState extends State<Settings> {
     customDownloadDirectoryPath =
         widget.userSettings.customDownloadDirectoryPath;
     chosenDirectoryForDownload = widget.userSettings.chosenDirectoryForDownload;
+    fileNameMode = widget.userSettings.fileNameMode;
     checkConnectivity();
   }
 
@@ -60,6 +62,7 @@ class _SettingsState extends State<Settings> {
                   "canDownloadUsingMobileData": canDownloadUsingMobileData,
                   "customDownloadDirectoryPath": customDownloadDirectoryPath,
                   "chosenDirectoryForDownload": chosenDirectoryForDownload,
+                  "fileNameMode": fileNameMode,
                 });
                 return false;
               },
@@ -69,10 +72,11 @@ class _SettingsState extends State<Settings> {
                     title: const Text("Audio"),
                     trailing: Switch(
                         value: audioOnly,
-                        onChanged: (isOn) {
+                        onChanged: (bool isOn) {
                           setState(() {
                             audioOnly = isOn;
                           });
+
                           setSetting(key: "audioOnly", value: isOn);
                         }),
                   ),
@@ -99,7 +103,9 @@ class _SettingsState extends State<Settings> {
                             value: "Other",
                             child: Text(customDownloadDirectoryPath ?? "Other"))
                       ],
-                      onChanged: (dynamic value) async {
+                      onChanged: (String? value) async {
+                        if (value == null) return;
+
                         if (value == "Other") {
                           customDownloadDirectoryPath =
                               await FilePicker.platform.getDirectoryPath();
@@ -120,13 +126,45 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   ListTile(
+                    title: const Text("File name template"),
+                    trailing: DropdownButton(
+                      value: fileNameMode,
+                      items: const [
+                        DropdownMenuItem(
+                            value: FileNameMode.songArtist,
+                            child: Text("Song - Artist")),
+                        DropdownMenuItem(
+                            value: FileNameMode.artistSong,
+                            child: Text("Artist - Song")),
+                        DropdownMenuItem(
+                            value: FileNameMode.title, child: Text("Title")),
+                      ],
+                      onChanged: (FileNameMode? value) async {
+                        if (value == null) return;
+
+                        setState(() {
+                          fileNameMode = value;
+                        });
+
+                        setSetting(
+                            key: "fileNameMode",
+                            value: value == FileNameMode.artistSong
+                                ? "artistSong"
+                                : value == FileNameMode.songArtist
+                                    ? "songArtist"
+                                    : "title");
+                      },
+                    ),
+                  ),
+                  ListTile(
                     title: const Text("Can download with mobile data"),
                     trailing: Switch(
                         value: canDownloadUsingMobileData,
-                        onChanged: (isOn) {
+                        onChanged: (bool isOn) {
                           setState(() {
                             canDownloadUsingMobileData = isOn;
                           });
+
                           setSetting(
                               key: "canDownloadUsingMobileData", value: isOn);
                         }),

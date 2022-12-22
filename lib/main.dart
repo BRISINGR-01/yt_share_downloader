@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yt_share_downloader/components/Home.dart';
 
-void main() {
+void main() async {
   runApp(MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,

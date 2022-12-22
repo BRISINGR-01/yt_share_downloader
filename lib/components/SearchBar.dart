@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 
 class SearchBar extends StatefulWidget {
   final Function prepareDownload;
-  final Function clearUrl;
   final String url;
-  const SearchBar(
-      {Key? key,
-      required this.prepareDownload,
-      required this.clearUrl,
-      required this.url})
-      : super(key: key);
+  const SearchBar({
+    Key? key,
+    required this.prepareDownload,
+    required this.url,
+  }) : super(key: key);
 
   @override
   State<SearchBar> createState() => _SearchBarState();
@@ -23,14 +21,14 @@ class _SearchBarState extends State<SearchBar> {
   @override
   void initState() {
     super.initState();
-    controller.text = widget.url;
+    // controller.text = widget.url;
   }
 
-  @override
-  void didUpdateWidget(covariant SearchBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    controller.text = widget.url;
-  }
+  // @override
+  // void didUpdateWidget(covariant SearchBar oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   controller.text = "";
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +61,7 @@ class _SearchBarState extends State<SearchBar> {
             padding: EdgeInsets.zero,
             onPressed: () {
               widget.prepareDownload(controller.text);
-              widget.clearUrl();
+              controller.clear();
             },
             icon: const Icon(Icons.search)),
       ),

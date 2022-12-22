@@ -15,10 +15,11 @@ dependencies:
   path: ^1.8.1
   external_path: ^1.0.3
   shared_preferences: ^2.0.15
-  file_picker: ^5.2.3
+  file_picker: ^4.3.3
   connectivity_plus: ^2.3.9
   percent_indicator: ^4.0.1
-
+  webview_windows: ^0.2.2
+  media_scanner: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -27,8 +28,11 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
-
   uses-material-design: true
+  assets:
+    - lib/assets/youtube_activity_icon.png
+  
+
 
 flutter_icons:
   android: "launcher_icon"
