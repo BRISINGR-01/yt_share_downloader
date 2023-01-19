@@ -20,28 +20,29 @@ dependencies:
   percent_indicator: ^4.0.1
   webview_windows: ^0.2.2
   media_scanner: ^2.1.0
+  ffmpeg_kit_flutter: ^5.1.0
+  id3_codec: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.11.0
   flutter_lints: ^2.0.0
+  lints: ^2.0.1
 
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/youtube_activity_icon.png
-  
-
+    - assets/youtube_activity_icon.png
 
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "lib/assets/icon.png"
+  image_path: "assets/icon.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   windows:
     generate: true
-    image_path: "lib/assets/icon.png"
+    image_path: "assets/icon.png"
     icon_size: 48 # min:48, max:256, default: 48
 
 flutter_app_name:

@@ -43,6 +43,8 @@ class _SearchBarState extends State<SearchBar> {
           borderRadius: BorderRadius.circular(5),
         ),
         title: TextField(
+          maxLines: 1,
+          expands: false,
           controller: controller,
           onSubmitted: (String val) {
             widget.prepareDownload(val);

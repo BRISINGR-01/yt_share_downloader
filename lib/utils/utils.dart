@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:external_path/external_path.dart';
-import 'package:flutter/material.dart';
+import 'package:media_scanner/media_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:yt_share_downloader/components/shared/displayed_error.dart';
+import 'package:yt_share_downloader/utils/user_settings.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 
-const List<String> valuesToRemove = ["VEVO"];
+const List<String> valuesToRemove = ["VEVO", "Topic", "feat."];
 
 String getDirectory(String option) {
   return {
@@ -33,7 +39,7 @@ Future<Map<String, dynamic>> getAllSettings() async {
   String? fileModeStr = prefs.getString("fileNameMode");
 
   return {
-    "audioOnly": prefs.getBool("audioOnly") ?? true,
+    "audioOnly": prefs.getBool("downloadAudio") ?? true,
     "chosenDirectoryForDownload":
         prefs.getString("chosenDirectoryForDownload") ?? "Downloads",
     "customDownloadDirectoryPath":
@@ -72,24 +78,25 @@ String getFileName({
           : title;
 }
 
-String getSongName(String title, String author) {
-  return title
-      .replaceFirst(author, "")
+String parseString(String txt) {
+  return txt
       .replaceAll(RegExp(r'\(.+\)'), "")
       .replaceAll(RegExp(r'\[.+\]'), "")
       .trim()
-      .replaceAll(RegExp(r'^-|-$/'), "")
+      .replaceAll(RegExp(r'^-|-$'), "")
       .trim();
 }
 
-Future<AppError?> canAccessInternet(bool canDownloadUsingMobileData) async {
+Future<DisplayedError?> canAccessInternet(
+    bool canDownloadUsingMobileData) async {
   ConnectivityResult connection = await Connectivity().checkConnectivity();
 
   if (connection == ConnectivityResult.none) {
-    return AppError("You are offline");
+    return DisplayedError("You are offline");
   } else if (!canDownloadUsingMobileData &&
       connection == ConnectivityResult.mobile) {
-    return AppError("Downloading with mobile data is disabled in the settings");
+    return DisplayedError(
+        "Downloading with mobile data is disabled in the settings");
   }
 
   return null;
@@ -100,6 +107,10 @@ bool isUrlValid(String? url) {
   return url != null &&
       Uri.parse(url).isAbsolute &&
       hosts.contains(Uri.parse(url).host);
+}
+
+bool isFileNameValid(String fileName) {
+  return !RegExp(r'[\\\/\?\:\"\<\>\|\*\.]').hasMatch(fileName);
 }
 
 Future<bool> isOffline() async {
@@ -118,13 +129,72 @@ String devideCamelCase(String artist) {
   return artist;
 }
 
-class AppError {
-  final String text;
-  AppError(this.text);
+Future<DisplayedError?> downloadFile(
+  UserSettings userSettings,
+  Function(double) updateProgress,
+  StreamManifest streamManifest,
+  String filePath,
+) async {
+  DisplayedError? connectionError =
+      await canAccessInternet(userSettings.canDownloadUsingMobileData);
 
-  Widget get widget => Flexible(
-      child:
-          Text(text, style: const TextStyle(color: Colors.red, fontSize: 20)));
+  if (connectionError != null) return connectionError;
+
+  var streamInfo = userSettings.downloadAudio
+      ? streamManifest.audioOnly.withHighestBitrate()
+      : streamManifest.videoOnly.withHighestBitrate();
+
+  int totalMbs = streamInfo.size.totalBytes;
+
+  Stream<List<int>> stream =
+      YoutubeExplode().videos.streamsClient.get(streamInfo);
+
+  try {
+    File file = File(filePath);
+    if (file.existsSync()) file.deleteSync();
+
+    IOSink fileStream = file.openWrite();
+
+    int downloadedMbs = 0;
+    updateProgress(0);
+    await for (List<int> bytes in stream) {
+      downloadedMbs += bytes.length;
+      updateProgress(downloadedMbs / totalMbs);
+      file.writeAsBytesSync(bytes, mode: FileMode.append);
+    }
+    await fileStream.flush();
+    await fileStream.close();
+
+    if (Platform.isAndroid) {
+      await MediaScanner.loadMedia(path: filePath);
+      // tell the OS that a new file is created.
+      // this way apps like spotify or other music players will update the available songs
+      // otherwise the file is there but can only be accessed by a file explorer and doesn't appear in other apps
+    }
+  } catch (_) {
+    return DisplayedError("An error occured while downloading the video");
+  }
+
+  return null;
+}
+
+Future<DisplayedError?> deleteFile(String filePath, String fileName) async {
+  File file = File(filePath);
+
+  if (!file.existsSync()) {
+    return DisplayedError("Cannot find $fileName! File path: $filePath");
+  }
+
+  try {
+    file.deleteSync();
+    if (Platform.isAndroid) {
+      await MediaScanner.loadMedia(path: file.path);
+    }
+  } catch (e) {
+    return DisplayedError("An error occured while deleting the file");
+  }
+
+  return null;
 }
 
 enum VideoState {

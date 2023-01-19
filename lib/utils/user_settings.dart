@@ -5,14 +5,14 @@ import 'package:yt_share_downloader/utils/utils.dart';
 class UserSettings {
   String? customDownloadDirectoryPath;
   String chosenDirectoryForDownload;
-  bool audioOnly;
+  bool downloadAudio;
   bool canDownloadUsingMobileData;
   FileNameMode fileNameMode;
 
   UserSettings({
     required this.chosenDirectoryForDownload,
     required this.customDownloadDirectoryPath,
-    required this.audioOnly,
+    required this.downloadAudio,
     required this.canDownloadUsingMobileData,
     required this.fileNameMode,
   });
@@ -23,7 +23,7 @@ class UserSettings {
     return UserSettings(
       chosenDirectoryForDownload: settings["chosenDirectoryForDownload"],
       customDownloadDirectoryPath: settings["customDownloadDirectoryPath"],
-      audioOnly: settings["audioOnly"],
+      downloadAudio: settings["audioOnly"],
       canDownloadUsingMobileData: settings["canDownloadUsingMobileData"],
       fileNameMode: settings["fileNameMode"],
     );
@@ -37,7 +37,7 @@ class UserSettings {
     return UserSettings(
       chosenDirectoryForDownload: values["chosenDirectoryForDownload"],
       customDownloadDirectoryPath: values["customDownloadDirectoryPath"],
-      audioOnly: values["audioOnly"],
+      downloadAudio: values["audioOnly"],
       canDownloadUsingMobileData: values["canDownloadUsingMobileData"],
       fileNameMode: values["fileNameMode"],
     );

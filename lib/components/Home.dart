@@ -1,19 +1,17 @@
-import 'dart:async';
 // ignore_for_file: file_names
 
+import 'dart:async';
 import 'dart:io';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:yt_share_downloader/components/SearchBar.dart';
-
+import 'package:yt_share_downloader/components/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:yt_share_downloader/components/Settings.dart';
-import 'package:yt_share_downloader/components/YTWindow.dart';
+import 'package:yt_share_downloader/components/Toast/toast_container.dart';
+import 'package:yt_share_downloader/components/yt_window.dart';
 import 'package:yt_share_downloader/components/shared/Loader.dart';
-import 'package:yt_share_downloader/components/shared/VideoDownloader.dart';
-import 'package:yt_share_downloader/utils/UserSettings.dart';
-import 'package:yt_share_downloader/utils/VideoObject.dart';
-import 'package:yt_share_downloader/utils/utils.dart';
+import 'package:yt_share_downloader/components/shared/video_downloader.dart';
+import 'package:yt_share_downloader/utils/user_settings.dart';
+import 'package:yt_share_downloader/utils/video_object.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -29,6 +27,7 @@ class _HomeState extends State<Home> {
   UserSettings? _userSettings;
   String _url = "";
   VideoObject? _video;
+  final List<VideoObject> _queue = [];
 
   void _refreshSettings(UserSettings settings) {
     setState(() {
@@ -40,14 +39,8 @@ class _HomeState extends State<Home> {
     if (url.isEmpty) return;
 
     setState(() {
-      _url = "";
       _video = VideoObject(url);
-    });
-  }
-
-  void _finishVideoDownload() {
-    setState(() {
-      _video = null;
+      _url = "";
     });
   }
 
@@ -55,7 +48,6 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     UserSettings.init().then(_refreshSettings);
-
     void initDownload(String? url) {
       if (url != null) {
         setState(() {
@@ -106,8 +98,8 @@ class _HomeState extends State<Home> {
                     }
                   },
                   icon: const Image(
-                      image:
-                          AssetImage('lib/assets/youtube_activity_icon.png'))),
+                      image: AssetImage('assets/youtube_activity_icon.png'))),
+            const SizedBox(width: 12),
             IconButton(
                 onPressed: () => Navigator.push(
                     context,
@@ -118,22 +110,46 @@ class _HomeState extends State<Home> {
                     )).then((value) => setState(() {
                       _userSettings = UserSettings.fromMap(value);
                     })),
-                icon: const Icon(Icons.settings))
+                icon: const Icon(Icons.settings)),
+            const SizedBox(width: 12),
           ],
         ),
-        body: _video != null
-            ? Padding(
-                padding: const EdgeInsets.all(24),
-                child: VideoDownloader(
-                  video: _video!,
-                  userSettings: _userSettings!,
-                  finish: () => _finishVideoDownload(),
-                ),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Flex(
+              direction: Axis.vertical,
+              children: [
+                _video != null
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: VideoDownloader(
+                          video: _video!,
+                          userSettings: _userSettings!,
+                          cancel: () => setState(() {
+                            _video = null;
+                          }),
+                          addToQueue: () => setState(() {
+                            _queue.add(_video!);
+                            _video = null;
+                          }),
+                        ),
+                      )
+                    : SearchBar(
+                        prepareDownload: _prepareDownload,
+                        url: _url,
+                      ),
+              ],
+            ),
+            if (_userSettings != null)
+              ToastContainer(
+                videos: _queue,
+                userSettings: _userSettings!,
+                removeFromQueue: (url) => setState(
+                    () => _queue.removeWhere((video) => video.url == url)),
               )
-            : SearchBar(
-                prepareDownload: _prepareDownload,
-                url: _url,
-              ),
+          ],
+        ),
       ));
     }
   }

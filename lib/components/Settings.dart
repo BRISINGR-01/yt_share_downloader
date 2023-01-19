@@ -3,7 +3,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_share_downloader/components/shared/Loader.dart';
-import 'package:yt_share_downloader/utils/UserSettings.dart';
+import 'package:yt_share_downloader/utils/user_settings.dart';
 import 'package:yt_share_downloader/utils/utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -37,7 +37,7 @@ class _SettingsState extends State<Settings> {
   @override
   void initState() {
     super.initState();
-    audioOnly = widget.userSettings.audioOnly;
+    audioOnly = widget.userSettings.downloadAudio;
     canDownloadUsingMobileData = widget.userSettings.canDownloadUsingMobileData;
     customDownloadDirectoryPath =
         widget.userSettings.customDownloadDirectoryPath;
