@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:yt_share_downloader/components/shared/displayed_error.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 
 const List<String> valuesToRemove = ["VEVO", "Topic", "feat."];
 

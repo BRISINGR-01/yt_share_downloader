@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:yt_share_downloader/components/Toast/done.dart';
-import 'package:yt_share_downloader/components/Toast/downloading.dart';
+import 'package:yt_share_downloader/components/toast/done.dart';
+import 'package:yt_share_downloader/components/toast/downloading.dart';
 import 'package:yt_share_downloader/components/shared/displayed_error.dart';
-import 'package:yt_share_downloader/components/shared/Loader.dart';
+import 'package:yt_share_downloader/components/shared/loader.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';
 import 'package:yt_share_downloader/utils/video_object.dart';
 import 'package:yt_share_downloader/utils/utils.dart';

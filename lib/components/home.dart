@@ -3,12 +3,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:yt_share_downloader/components/search_bar.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchBar;
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:yt_share_downloader/components/Settings.dart';
-import 'package:yt_share_downloader/components/Toast/toast_container.dart';
+import 'package:yt_share_downloader/components/settings.dart';
+import 'package:yt_share_downloader/components/toast/toast_container.dart';
 import 'package:yt_share_downloader/components/yt_window.dart';
-import 'package:yt_share_downloader/components/shared/Loader.dart';
+import 'package:yt_share_downloader/components/shared/loader.dart';
 import 'package:yt_share_downloader/components/shared/video_downloader.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';
 import 'package:yt_share_downloader/utils/video_object.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yt_share_downloader/components/Toast/Toast.dart';
+import 'package:yt_share_downloader/components/toast/toast.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';
 import 'package:yt_share_downloader/utils/video_object.dart';
 

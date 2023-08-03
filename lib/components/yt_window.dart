@@ -1,12 +1,10 @@
 // ignore_for_file: file_names
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_windows/webview_windows.dart';
-import 'package:yt_share_downloader/components/Toast/toast_container.dart';
-import 'package:yt_share_downloader/components/shared/Loader.dart';
+import 'package:yt_share_downloader/components/toast/toast_container.dart';
+import 'package:yt_share_downloader/components/shared/loader.dart';
 import 'package:yt_share_downloader/components/shared/displayed_error.dart';
 import 'package:yt_share_downloader/components/shared/video_downloader.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';

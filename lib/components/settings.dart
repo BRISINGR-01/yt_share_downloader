@@ -2,7 +2,7 @@
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:yt_share_downloader/components/shared/Loader.dart';
+import 'package:yt_share_downloader/components/shared/loader.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';
 import 'package:yt_share_downloader/utils/utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';

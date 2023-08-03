@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 import 'package:flutter/material.dart';
 import 'package:yt_share_downloader/components/shared/displayed_error.dart';
-import 'package:yt_share_downloader/components/shared/Loader.dart';
+import 'package:yt_share_downloader/components/shared/loader.dart';
 import 'package:yt_share_downloader/components/shared/file_name_input.dart';
 import 'package:yt_share_downloader/utils/user_settings.dart';
 import 'package:yt_share_downloader/utils/video_object.dart';
